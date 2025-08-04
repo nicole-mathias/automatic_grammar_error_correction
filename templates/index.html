@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Error Detection & Correction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .input-section {
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            margin-top: 40px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .correction-text {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e1e5e9;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .token-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .token {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .token-correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .token-incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-top: 10px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Grammar Error Detection & Correction</h1>
+            <p>Advanced NLP-powered grammar analysis using T5 and BERT models</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="input-text">Enter your text to analyze:</label>
+                    <textarea id="input-text" placeholder="Type or paste your text here..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="analyzeText()">Analyze Text</button>
+                    <button class="btn btn-secondary" onclick="correctGrammar()">Correct Grammar</button>
+                    <button class="btn btn-secondary" onclick="detectErrors()">Detect Errors</button>
+                    <button class="btn btn-secondary" onclick="clearResults()">Clear Results</button>
+                </div>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processing your text...</p>
+            </div>
+
+            <div id="results" class="results-section"></div>
+        </div>
+    </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            hideLoading();
+            document.getElementById('results').innerHTML = `
+                <div class="error">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function showSuccess(message) {
+            hideLoading();
+            document.getElementById('results').innerHTML = `
+                <div class="success">
+                    ${message}
+                </div>
+            `;
+        }
+
+        async function makeRequest(endpoint, text) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                throw new Error(`Request failed: ${error.message}`);
+            }
+        }
+
+        function displayCorrection(data) {
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+
+            let html = `
+                <div class="result-card">
+                    <h3>Grammar Correction</h3>
+                    <div class="correction-text">${data.corrected_text || 'No correction available'}</div>
+            `;
+            
+            if (data.note) {
+                html += `<div class="note" style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+                    <strong>Note:</strong> ${data.note}
+                </div>`;
+            }
+            
+            html += `</div>`;
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function displayDetection(data) {
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+
+            if (!data.tokens || data.tokens.length === 0) {
+                showError('No tokens found for analysis');
+                return;
+            }
+
+            const tokensHtml = data.tokens.map(token => {
+                const className = token.tag === 'i' ? 'token-incorrect' : 'token-correct';
+                return `<span class="token ${className}">${token.token}</span>`;
+            }).join('');
+
+            let html = `
+                <div class="result-card">
+                    <h3>Error Detection</h3>
+                    <p><strong>Legend:</strong> <span class="token token-correct">Correct</span> <span class="token token-incorrect">Incorrect</span></p>
+                    <div class="token-list">
+                        ${tokensHtml}
+                    </div>
+            `;
+            
+            if (data.note) {
+                html += `<div class="note" style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+                    <strong>Note:</strong> ${data.note}
+                </div>`;
+            }
+            
+            html += `</div>`;
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function displayAnalysis(data) {
+            let html = '';
+
+            if (data.correction && !data.correction.error) {
+                html += `
+                    <div class="result-card">
+                        <h3>Grammar Correction</h3>
+                        <div class="correction-text">${data.correction.corrected_text || 'No correction available'}</div>
+                `;
+                
+                if (data.correction.note) {
+                    html += `<div class="note" style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+                        <strong>Note:</strong> ${data.correction.note}
+                    </div>`;
+                }
+                
+                html += `</div>`;
+            }
+
+            if (data.detection && !data.detection.error && data.detection.tokens) {
+                const tokensHtml = data.detection.tokens.map(token => {
+                    const className = token.tag === 'i' ? 'token-incorrect' : 'token-correct';
+                    return `<span class="token ${className}">${token.token}</span>`;
+                }).join('');
+
+                html += `
+                    <div class="result-card">
+                        <h3>Error Detection</h3>
+                        <p><strong>Legend:</strong> <span class="token token-correct">Correct</span> <span class="token token-incorrect">Incorrect</span></p>
+                        <div class="token-list">
+                            ${tokensHtml}
+                        </div>
+                `;
+                
+                if (data.detection.note) {
+                    html += `<div class="note" style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+                        <strong>Note:</strong> ${data.detection.note}
+                    </div>`;
+                }
+                
+                html += `</div>`;
+            }
+
+            if (html === '') {
+                showError('No analysis results available');
+                return;
+            }
+
+            document.getElementById('results').innerHTML = html;
+        }
+
+        async function analyzeText() {
+            const text = document.getElementById('input-text').value.trim();
+            if (!text) {
+                showError('Please enter some text to analyze');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const data = await makeRequest('/api/analyze', text);
+                hideLoading();
+                displayAnalysis(data);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function correctGrammar() {
+            const text = document.getElementById('input-text').value.trim();
+            if (!text) {
+                showError('Please enter some text to correct');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const data = await makeRequest('/api/correct', text);
+                hideLoading();
+                displayCorrection(data);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function detectErrors() {
+            const text = document.getElementById('input-text').value.trim();
+            if (!text) {
+                showError('Please enter some text to analyze');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const data = await makeRequest('/api/detect', text);
+                hideLoading();
+                displayDetection(data);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('results').innerHTML = '';
+        }
+    </script>
+</body>
+</html> 
