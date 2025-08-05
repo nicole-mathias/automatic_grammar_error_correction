@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  grammar-app:
+    build: .
+    ports:
+      - "10000:10000"
+    environment:
+      - PORT=10000
+    volumes:
+      - ./models:/app/models
+      - ./t5_jfleg:/app/t5_jfleg
+    restart: unless-stopped 
