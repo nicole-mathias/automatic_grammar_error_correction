@@ -23,5 +23,5 @@ EXPOSE 8080
 # Set environment variable
 ENV PORT=8080
 
-# Run the application
+# Run the multilingual application
 CMD ["python", "app_multilingual.py"] 
