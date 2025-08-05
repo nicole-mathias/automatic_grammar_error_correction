@@ -16,4 +16,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push https://NicoleMathias:$HF_TOKEN@huggingface.co/spaces/NicoleMathias/NicoleMathias/grammer-error-correction main
+        run: git push https://NicoleMathias:$HF_TOKEN@huggingface.co/spaces/NicoleMathias/grammer-error-correction main
