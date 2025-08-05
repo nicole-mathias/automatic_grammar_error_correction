@@ -1,12 +1,11 @@
 services:
   - type: web
-    name: grammar-error-detection
+    name: grammar-error-correction
     env: python
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python app_multilingual.py
+    buildCommand: pip install -r requirements_render.txt
+    startCommand: python app_render.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.16
       - key: PORT
-        value: 5002 
+        value: 10000 
