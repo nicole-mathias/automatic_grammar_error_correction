@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: grammar-error-correction
-    env: docker
-    dockerfilePath: ./Dockerfile
-    envVars:
-      - key: PORT
-        value: 8080 

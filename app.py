@@ -18,6 +18,19 @@ bert_tokenizers = {}
 t5_model = None
 t5_tokenizer = None
 
+# Language code mapping for frontend
+LANGUAGE_CODE_MAPPING = {
+    'en': 'english',
+    'cs': 'czech', 
+    'de': 'german',
+    'it': 'italian',
+    'sv': 'swedish'
+}
+
+def map_language_code(code):
+    """Map frontend language codes to backend language names"""
+    return LANGUAGE_CODE_MAPPING.get(code, 'english')
+
 # Language configuration
 LANGUAGES = {
     'english': {
@@ -255,8 +268,21 @@ def load_all_models():
 
 def correct_grammar(text, language='english'):
     """Correct grammar errors in text using T5 model (English only)"""
-    if language != 'english':
-        return {"error": "Grammar correction is only available for English"}
+    if language not in LANGUAGES:
+        return {
+            "success": False,
+            "message": f"Language '{language}' is not supported.",
+            "available_features": [],
+            "language": language
+        }
+    
+    if not LANGUAGES[language]['supports_correction']:
+        return {
+            "success": False,
+            "message": f"Grammar correction is currently only available for English. For {LANGUAGES[language]['name']}, only error detection is supported.",
+            "available_features": ["error_detection"],
+            "language": language
+        }
     
     if t5_model is None or t5_tokenizer is None:
         return {"error": "T5 model not loaded"}
@@ -277,7 +303,9 @@ def correct_grammar(text, language='english'):
         corrected_text = t5_tokenizer.decode(outputs[0], skip_special_tokens=True)
         
         return {
+            "success": True,
             "corrected_text": corrected_text,
+            "original_text": text,
             "model_type": "trained" if "t5_jfleg" in str(t5_model) else "base"
         }
         
@@ -305,6 +333,7 @@ def detect_errors(text, language):
         tokens = bert_tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
         tags = []
         
+        # Handle different tensor shapes
         if len(predictions.shape) > 1:
             pred_sequence = predictions[0]
             conf_sequence = confidence_scores[0]
@@ -315,13 +344,26 @@ def detect_errors(text, language):
         for i, (pred, conf) in enumerate(zip(pred_sequence, conf_sequence)):
             if i < len(tokens):
                 try:
-                    if pred.numel() == 1:
-                        pred_value = pred.item()
-                        conf_value = conf.item()
+                    # Safely extract scalar values from tensors
+                    if isinstance(pred, torch.Tensor):
+                        if pred.numel() == 1:
+                            pred_value = pred.item()
+                        else:
+                            # Take the first element if it's a multi-element tensor
+                            pred_value = pred.flatten()[0].item()
                     else:
-                        pred_value = pred[0].item() if len(pred.shape) > 0 else pred.item()
-                        conf_value = conf[0].item() if len(conf.shape) > 0 else conf.item()
+                        pred_value = pred
                     
+                    if isinstance(conf, torch.Tensor):
+                        if conf.numel() == 1:
+                            conf_value = conf.item()
+                        else:
+                            # Take the first element if it's a multi-element tensor
+                            conf_value = conf.flatten()[0].item()
+                    else:
+                        conf_value = conf
+                    
+                    # Map prediction to tag (assuming 0=correct, 1=incorrect)
                     tag = "i" if pred_value == 1 else "c"
                     tags.append({
                         "token": tokens[i], 
@@ -330,6 +372,7 @@ def detect_errors(text, language):
                     })
                 except Exception as e:
                     logger.warning(f"Error processing prediction {i}: {e}")
+                    # Fallback to default values
                     tags.append({
                         "token": tokens[i], 
                         "tag": "c", 
@@ -373,7 +416,8 @@ def api_correct():
     try:
         data = request.get_json()
         text = data.get('text', '')
-        language = data.get('language', 'english')
+        language_code = data.get('language_code', 'en') # Changed to language_code
+        language = map_language_code(language_code) # Map frontend code to backend name
         
         if not text:
             return jsonify({"error": "No text provided"}), 400
@@ -391,7 +435,8 @@ def api_detect():
     try:
         data = request.get_json()
         text = data.get('text', '')
-        language = data.get('language', 'english')
+        language_code = data.get('language_code', 'en') # Changed to language_code
+        language = map_language_code(language_code) # Map frontend code to backend name
         
         if not text:
             return jsonify({"error": "No text provided"}), 400
@@ -409,7 +454,8 @@ def api_analyze():
     try:
         data = request.get_json()
         text = data.get('text', '')
-        language = data.get('language', 'english')
+        language_code = data.get('language_code', 'en') # Changed to language_code
+        language = map_language_code(language_code) # Map frontend code to backend name
         
         if not text:
             return jsonify({"error": "No text provided"}), 400
@@ -437,8 +483,9 @@ def health_check():
     })
 
 if __name__ == '__main__':
-    logger.info("🚀 Starting Multi-Language Grammar Error Detection & Correction Service")
+    # Load models on startup
     load_all_models()
-    port = int(os.environ.get('PORT', 8080))
-    logger.info(f"🎉 Service ready! Starting Flask server on http://0.0.0.0:{port}")
+    
+    # For Hugging Face Spaces, use port 7860
+    port = int(os.environ.get('PORT', 7860))
     app.run(host='0.0.0.0', port=port, debug=False) 

@@ -6,693 +6,879 @@
     <title>Multilingual Grammar Error Detection & Correction</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            /* Mild, Light Modern Color Palette */
+            --primary-color: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary-color: #f8fafc;
+            --accent-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --border-color: #e2e8f0;
+            --shadow-light: rgba(0, 0, 0, 0.05);
+            --shadow-medium: rgba(0, 0, 0, 0.1);
+        }
+
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
             min-height: 100vh;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            padding: 2rem;
         }
-        
+
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
             text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
         }
-        
+
         .header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: 300;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
         }
-        
+
         .header p {
-            margin: 10px 0 0 0;
-            font-size: 1.1em;
-            opacity: 0.9;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
         }
-        
-        .content {
-            padding: 30px;
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
         }
-        
-        .language-selection {
-            margin-bottom: 30px;
-        }
-        
-        .language-selection h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .language-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .lang-btn {
-            padding: 12px 20px;
-            border: 2px solid #667eea;
+
+        .card {
             background: white;
-            color: #667eea;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 500;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px var(--shadow-light);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
-            text-transform: capitalize;
         }
-        
-        .lang-btn:hover {
-            background: #667eea;
-            color: white;
+
+        .card:hover {
+            box-shadow: 0 8px 25px var(--shadow-medium);
+            transform: translateY(-2px);
         }
-        
-        .lang-btn.active {
-            background: #667eea;
-            color: white;
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .language-info {
-            background: #e3f2fd;
-            border: 1px solid #bbdefb;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--primary-color);
         }
-        
-        .language-info h4 {
-            color: #1976d2;
-            margin-bottom: 10px;
+
+        .form-group {
+            margin-bottom: 1.5rem;
         }
-        
-        .language-info p {
-            margin: 5px 0;
-            color: #424242;
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
         }
-        
-        .input-section {
-            margin-bottom: 30px;
-        }
-        
-        .input-section h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .text-input {
+
+        .form-control {
             width: 100%;
-            min-height: 120px;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: inherit;
-            resize: vertical;
-            transition: border-color 0.3s ease;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: var(--text-primary);
         }
-        
-        .text-input:focus {
+
+        .form-control:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
-        
-        .button-group {
+
+        .form-control:focus::placeholder {
+            color: var(--text-light);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--accent-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-error {
+            background: var(--error-color);
+        }
+
+        .btn-error:hover {
+            background: #dc2626;
+        }
+
+        .language-selector {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
             flex-wrap: wrap;
         }
-        
-        .btn {
-            padding: 12px 25px;
-            border: none;
+
+        .language-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            background: white;
+            color: var(--text-secondary);
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-        
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-        
-        .results {
-            margin-top: 30px;
-        }
-        
-        .result-card {
-            background: white;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-        
-        .result-card h3 {
-            color: #333;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-        
-        .correction-text {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px solid #e1e5e9;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        
-        .token-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .token {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
+            font-size: 0.9rem;
             font-weight: 500;
         }
-        
-        .token-correct {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            padding: 2px 4px;
-            border-radius: 3px;
-            margin: 1px;
+
+        .language-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
-        
-        .token-incorrect {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            padding: 2px 4px;
-            border-radius: 3px;
-            margin: 1px;
+
+        .language-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
         }
-        
-        .loading {
+
+        .result-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .result-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .result-text {
+            background: var(--secondary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: normal;
+            word-wrap: break-word;
+            text-align: left;
+        }
+
+        .error-highlight {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .correction-highlight {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
             text-align: center;
-            padding: 20px;
-            color: #666;
         }
-        
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+            margin: 0 auto 1rem;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #f5c6cb;
-            margin-top: 10px;
+
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
-        
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #c3e6cb;
-            margin-top: 10px;
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
         }
-        
-        .model-analysis {
-            margin-top: 30px;
+
+        .footer a:hover {
+            text-decoration: underline;
         }
-        
-        .model-analysis h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .chart-container {
-            background: white;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-        
+
         @media (max-width: 768px) {
             .container {
-                margin: 10px;
-                border-radius: 10px;
+                padding: 1rem;
             }
-            
-            .header {
-                padding: 20px;
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
-            
+
             .header h1 {
-                font-size: 2em;
+                font-size: 2rem;
             }
-            
-            .content {
-                padding: 20px;
+
+            .card {
+                padding: 1.5rem;
             }
-            
-            .language-buttons {
+
+            .language-selector {
                 justify-content: center;
             }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online {
+            background: var(--success-color);
+        }
+
+        .status-offline {
+            background: var(--error-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Multilingual Grammar Error Detection & Correction</h1>
-            <p>Advanced AI-powered grammar analysis for multiple languages</p>
+            <h1>🔍 Grammar Error Detection & Correction</h1>
+            <p>Advanced multilingual grammar analysis and correction using AI models</p>
         </div>
-        
-        <div class="content">
-            <div class="language-selection">
-                <h3>Select Language</h3>
-                <div class="language-buttons" id="languageButtons">
-                    <!-- Language buttons will be generated here -->
+
+        <div class="main-content">
+            <!-- Input Section -->
+            <div class="card">
+                <h2>
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Input Text
+                </h2>
+                
+                <div class="form-group">
+                    <label for="language">Language:</label>
+                    <div class="language-selector" id="languageSelector">
+                        <!-- Language buttons will be populated by JavaScript -->
+                    </div>
+                    <div id="languageInfo" style="margin-top: 0.5rem; padding: 0.75rem; background: var(--secondary-color); border-radius: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                        <strong>ℹ️ Language Capabilities:</strong><br>
+                        • <strong>English:</strong> Error detection + Grammar correction<br>
+                        • <strong>Other languages:</strong> Error detection only
+                    </div>
                 </div>
-                <div class="language-info" id="languageInfo">
-                    <!-- Language information will be displayed here -->
+
+                <div class="form-group">
+                    <label for="inputText">Enter your text:</label>
+                    <textarea id="inputText" class="form-control" rows="8" placeholder="Enter text to analyze for grammar errors..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button id="detectBtn" class="btn">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                        </svg>
+                        Detect Errors
+                    </button>
+                    <button id="correctBtn" class="btn btn-success">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                        </svg>
+                        Correct Grammar
+                    </button>
+                    <button id="analyzeBtn" class="btn btn-warning">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                        </svg>
+                        Full Analysis
+                    </button>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing your text...</p>
                 </div>
             </div>
-            
-            <div class="input-section">
-                <h3>Enter Text for Analysis</h3>
-                <textarea id="textInput" class="text-input" placeholder="Enter your text here..."></textarea>
-                <div class="button-group">
-                    <button class="btn btn-secondary" id="correctBtn" onclick="correctGrammar()" style="display: none;">Correct Grammar</button>
-                    <button class="btn btn-secondary" onclick="detectErrors()">Detect Grammar Errors</button>
-                    <button class="btn btn-secondary" onclick="clearResults()">Clear Results</button>
+
+            <!-- Results Section -->
+            <div class="card">
+                <h2>
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                    </svg>
+                    Results
+                </h2>
+
+                <div class="api-status" id="apiStatus">
+                    <div class="status-indicator status-online"></div>
+                    <span>API Status: Checking...</span>
+                </div>
+
+                <div id="results">
+                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                        Enter text and select an action to see results here
+                    </p>
                 </div>
             </div>
-            
-            <div id="results" class="results">
-                <!-- Results will be displayed here -->
-            </div>
-            
-            <div class="model-analysis">
-                <h3>Model Performance Analysis</h3>
-                <div class="chart-container">
-                    <canvas id="accuracyChart"></canvas>
-                </div>
-            </div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by advanced AI models for grammar analysis and correction</p>
         </div>
     </div>
 
     <script>
-        let currentLanguage = 'english';
-        let languages = {};
-        let accuracyChart = null;
+        // Available languages
+        const languages = [
+            { code: 'en', name: 'English', flag: '🇺🇸' },
+            { code: 'cs', name: 'Czech', flag: '🇨🇿' },
+            { code: 'de', name: 'German', flag: '🇩🇪' },
+            { code: 'it', name: 'Italian', flag: '🇮🇹' },
+            { code: 'sv', name: 'Swedish', flag: '🇸🇪' }
+        ];
 
-        async function initializeApp() {
-            try {
-                const response = await fetch('/api/languages');
-                const data = await response.json();
-                languages = data.languages;
-                
-                createLanguageButtons();
-                createAccuracyChart();
-                selectLanguage('english');
-            } catch (error) {
-                console.error('Error initializing app:', error);
-            }
-        }
+        // Language configuration (matching backend)
+        const LANGUAGES = {
+            'en': { name: 'English', supports_correction: true },
+            'cs': { name: 'Czech', supports_correction: false },
+            'de': { name: 'German', supports_correction: false },
+            'it': { name: 'Italian', supports_correction: false },
+            'sv': { name: 'Swedish', supports_correction: false }
+        };
 
-        function createLanguageButtons() {
-            const container = document.getElementById('languageButtons');
-            container.innerHTML = '';
-            
-            const languageOrder = ['english', 'german', 'italian', 'czech', 'swedish'];
-            
-            languageOrder.forEach(lang => {
-                if (languages[lang]) {
-                    const btn = document.createElement('button');
-                    btn.className = 'lang-btn';
-                    btn.textContent = languages[lang].config.name;
-                    btn.onclick = () => selectLanguage(lang);
-                    container.appendChild(btn);
-                }
-            });
-        }
+        let selectedLanguage = 'en';
+        let isProcessing = false; // Prevent multiple simultaneous requests
 
-        function selectLanguage(language) {
-            currentLanguage = language;
-            
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeLanguageSelector();
+            checkApiStatus();
+            setupEventListeners();
+        });
+
+        function initializeLanguageSelector() {
+            const container = document.getElementById('languageSelector');
+            languages.forEach(lang => {
+                const btn = document.createElement('button');
+                btn.className = 'language-btn' + (lang.code === selectedLanguage ? ' active' : '');
+                btn.innerHTML = `${lang.flag} ${lang.name}`;
+                btn.onclick = () => selectLanguage(lang.code);
+                container.appendChild(btn);
             });
             
-            const activeBtn = Array.from(document.querySelectorAll('.lang-btn'))
-                .find(btn => btn.textContent.toLowerCase() === languages[language].config.name.toLowerCase());
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
+            // Set initial language info
+            const languageInfo = document.getElementById('languageInfo');
+            const languageName = LANGUAGES[selectedLanguage].name;
+            const supportsCorrection = LANGUAGES[selectedLanguage].supports_correction;
             
-            updateLanguageInfo(language);
-            updatePlaceholderText(language);
-            
-            const correctBtn = document.getElementById('correctBtn');
-            if (languages[language].config.supports_correction) {
-                correctBtn.style.display = 'inline-block';
+            if (supportsCorrection) {
+                languageInfo.innerHTML = `
+                    <strong>✅ ${languageName} - Full Support:</strong><br>
+                    • Error detection + Grammar correction available
+                `;
             } else {
-                correctBtn.style.display = 'none';
-            }
-        }
-
-        function updateLanguageInfo(language) {
-            const langInfo = document.getElementById('languageInfo');
-            const languageData = languages[language];
-            
-            if (languageData) {
-                const accuracyText = languageData.config.accuracy ? 
-                    `${(languageData.config.accuracy * 100).toFixed(1)}%` : 
-                    'Calculating...';
-                
-                langInfo.innerHTML = `
-                    <h4>${languageData.config.name}</h4>
-                    <p><strong>${languageData.config.description}</strong></p>
-                    <p><strong>Accuracy:</strong> ${accuracyText}</p>
-                    <p><strong>Dataset:</strong> ${languageData.config.dataset}</p>
+                languageInfo.innerHTML = `
+                    <strong>⚠️ ${languageName} - Limited Support:</strong><br>
+                    • Error detection only (correction not available)
                 `;
             }
         }
 
-        function updatePlaceholderText(language) {
-            const textarea = document.getElementById('textInput');
-            const placeholders = {
-                'english': 'Example: I goes to the store yesterday.',
-                'german': 'Example: Ich geht zur Schule. Du haben ein Auto.',
-                'italian': 'Example: Io vado al negozio. Tu hai una macchina.',
-                'czech': 'Example: Já jdu do obchodu. Ty máš auto.',
-                'swedish': 'Example: Jag går till affären. Du har en bil.'
-            };
-            textarea.placeholder = placeholders[language] || 'Enter your text here...';
+        function selectLanguage(code) {
+            selectedLanguage = code;
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update language info
+            const languageInfo = document.getElementById('languageInfo');
+            const languageName = LANGUAGES[code].name;
+            const supportsCorrection = LANGUAGES[code].supports_correction;
+            
+            if (supportsCorrection) {
+                languageInfo.innerHTML = `
+                    <strong>✅ ${languageName} - Full Support:</strong><br>
+                    • Error detection + Grammar correction available
+                `;
+            } else {
+                languageInfo.innerHTML = `
+                    <strong>⚠️ ${languageName} - Limited Support:</strong><br>
+                    • Error detection only (correction not available)
+                `;
+            }
         }
 
-        function createAccuracyChart() {
-            const ctx = document.getElementById('accuracyChart').getContext('2d');
-            
-            const chartData = Object.entries(languages)
-                .filter(([lang, data]) => data.config.accuracy !== null)
-                .map(([lang, data]) => ({
-                    language: data.config.name,
-                    accuracy: data.config.accuracy * 100
-                }));
-            
-            if (chartData.length === 0) {
-                document.getElementById('accuracyChart').parentElement.innerHTML = 
-                    '<p style="text-align: center; color: #666;">Accuracy data not available</p>';
-                return;
-            }
-            
-            accuracyChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: chartData.map(d => d.language),
-                    datasets: [{
-                        label: 'Model Accuracy (%)',
-                        data: chartData.map(d => d.accuracy),
-                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
-                        borderColor: 'rgba(102, 126, 234, 1)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
+        function setupEventListeners() {
+            document.getElementById('detectBtn').addEventListener('click', detectErrors);
+            document.getElementById('correctBtn').addEventListener('click', correctGrammar);
+            document.getElementById('analyzeBtn').addEventListener('click', fullAnalysis);
+        }
+
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('/api/health');
+                const status = document.getElementById('apiStatus');
+                if (response.ok) {
+                    status.innerHTML = '<div class="status-indicator status-online"></div><span>API Status: Online</span>';
+                } else {
+                    status.innerHTML = '<div class="status-indicator status-offline"></div><span>API Status: Offline</span>';
                 }
-            });
+            } catch (error) {
+                const status = document.getElementById('apiStatus');
+                status.innerHTML = '<div class="status-indicator status-offline"></div><span>API Status: Offline</span>';
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showResults(content) {
+            document.getElementById('results').innerHTML = content;
         }
 
         async function detectErrors() {
-            const text = document.getElementById('textInput').value.trim();
+            if (isProcessing) return; // Prevent multiple simultaneous requests
+            
+            const text = document.getElementById('inputText').value.trim();
             if (!text) {
-                showError('Please enter some text to analyze');
+                alert('Please enter some text to analyze.');
                 return;
             }
-            
+
+            isProcessing = true;
             showLoading();
-            
+
             try {
                 const response = await fetch('/api/detect', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         text: text,
-                        language: currentLanguage
+                        language_code: selectedLanguage
                     })
                 });
-                
-                const data = await response.json();
-                displayDetection(data);
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.error) {
+                    showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">${result.error}</div></div>`);
+                    return;
+                }
+
+                // Extract errors from tokens (tokens with tag "i" are incorrect)
+                const errors = result.tokens.filter(token => token.tag === "i" && token.token !== "[CLS]" && token.token !== "[SEP]");
+                const errorWords = errors.map(error => error.token);
+
+                let content = `
+                    <div class="result-section">
+                        <h3>🔍 Error Detection Results</h3>
+                        <div class="result-text">${highlightErrors(text, errorWords)}</div>
+                    </div>
+                `;
+
+                if (errors.length > 0) {
+                    content += `
+                        <div class="result-section">
+                            <h3>📊 Error Statistics</h3>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-value">${errors.length}</div>
+                                    <div class="stat-label">Total Errors</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${Math.round((errors.length / text.split(' ').length) * 100)}%</div>
+                                    <div class="stat-label">Error Rate</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${Math.round(result.avg_confidence * 100)}%</div>
+                                    <div class="stat-label">Avg Confidence</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    content += `
+                        <div class="result-section">
+                            <h3>✅ No Errors Detected</h3>
+                            <div class="result-text" style="color: var(--success-color);">
+                                Great! No grammar errors were detected in your text.
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Add additional analysis info
+                content += `
+                    <div class="result-section">
+                        <h3>📈 Analysis Details</h3>
+                        <div class="result-text">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>Language:</strong> <span>${LANGUAGES[selectedLanguage].name}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>Dataset:</strong> <span>${result.dataset}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>Model Accuracy:</strong> <span>${Math.round(result.accuracy * 100)}%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>Tokens Analyzed:</strong> <span>${result.tokens.length}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <strong>Average Confidence:</strong> <span>${Math.round(result.avg_confidence * 100)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                showResults(content);
             } catch (error) {
-                showError('Error detecting errors: ' + error.message);
+                hideLoading();
+                showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">Failed to detect errors: ${error.message}</div></div>`);
+            } finally {
+                isProcessing = false;
             }
         }
 
         async function correctGrammar() {
-            const text = document.getElementById('textInput').value.trim();
+            if (isProcessing) return; // Prevent multiple simultaneous requests
+            
+            const text = document.getElementById('inputText').value.trim();
             if (!text) {
-                showError('Please enter some text to correct');
+                alert('Please enter some text to correct.');
                 return;
             }
-            
+
+            isProcessing = true;
             showLoading();
-            
+
             try {
                 const response = await fetch('/api/correct', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         text: text,
-                        language: currentLanguage
+                        language_code: selectedLanguage
                     })
                 });
-                
-                const data = await response.json();
-                displayCorrection(data);
-            } catch (error) {
-                showError('Error correcting grammar: ' + error.message);
-            }
-        }
 
-        function displayDetection(data) {
-            if (data.error) {
-                showError(data.error);
-                return;
-            }
+                const result = await response.json();
+                hideLoading();
 
-            if (!data.tokens || data.tokens.length === 0) {
-                showError('No tokens found for analysis');
-                return;
-            }
-
-            const tokensHtml = data.tokens.map(token => {
-                const className = token.tag === 'i' ? 'token-incorrect' : 'token-correct';
-                
-                const confidenceColor = token.confidence > 0.8 ? '#28a745' : token.confidence > 0.6 ? '#ffc107' : '#dc3545';
-                const confidenceText = `(${(token.confidence * 100).toFixed(0)}%)`;
-                
-                return `<span class="token ${className}" title="${token.token} - Confidence: ${(token.confidence * 100).toFixed(1)}%">
-                    ${token.token} <small style="color: ${confidenceColor}; font-size: 0.7em;">${confidenceText}</small>
-                </span>`;
-            }).join('');
-
-            let html = `
-                <div class="result-card">
-                    <h3>Error Detection (${languages[currentLanguage].config.name})</h3>
-                    <p><strong>Legend:</strong> <span class="token token-correct">Correct</span> <span class="token token-incorrect">Incorrect</span></p>
-                    <div class="token-list">
-                        ${tokensHtml}
-                    </div>
-            `;
-            
-            if (data.accuracy) {
-                html += `<div class="note" style="margin-top: 10px; padding: 10px; background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 5px; color: #1976d2;">
-                    <strong>Model Accuracy:</strong> ${(data.accuracy * 100).toFixed(1)}% (${data.dataset} dataset)
-                </div>`;
-            }
-            
-            if (data.avg_confidence) {
-                const confidenceColor = data.avg_confidence > 0.8 ? '#28a745' : data.avg_confidence > 0.6 ? '#ffc107' : '#dc3545';
-                html += `<div class="note" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; color: #6c757d;">
-                    <strong>Average Confidence:</strong> <span style="color: ${confidenceColor};">${(data.avg_confidence * 100).toFixed(1)}%</span>
-                </div>`;
-            }
-            
-            if (data.low_confidence_warning) {
-                html += `<div class="note" style="margin-top: 10px; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; color: #721c24;">
-                    <strong>Low Confidence Warning:</strong> The model is uncertain about this analysis. Consider double-checking the results.
-                </div>`;
-            }
-            
-            html += `</div>`;
-            document.getElementById('results').innerHTML = html;
-        }
-
-        function displayCorrection(data) {
-            if (data.error) {
-                showError(data.error);
-                return;
-            }
-
-            const html = `
-                <div class="result-card">
-                    <h3>Grammar Correction (${languages[currentLanguage].config.name})</h3>
-                    <div class="correction-text">${data.corrected_text || 'No correction available'}</div>
-                </div>
-            `;
-            
-            document.getElementById('results').innerHTML = html;
-        }
-
-        function displayAnalysis(data) {
-            let html = '';
-
-            if (data.correction && !data.correction.error) {
-                html += `
-                    <div class="result-card">
-                        <h3>Grammar Correction (${languages[currentLanguage].config.name})</h3>
-                        <div class="correction-text">${data.correction.corrected_text || 'No correction available'}</div>
-                    </div>
-                `;
-            }
-
-            if (data.detection && !data.detection.error && data.detection.tokens) {
-                const tokensHtml = data.detection.tokens.map(token => {
-                    const className = token.tag === 'i' ? 'token-incorrect' : 'token-correct';
-                    return `<span class="token ${className}">${token.token}</span>`;
-                }).join('');
-
-                html += `
-                    <div class="result-card">
-                        <h3>Error Detection (${languages[currentLanguage].config.name})</h3>
-                        <p><strong>Legend:</strong> <span class="token token-correct">Correct</span> <span class="token token-incorrect">Incorrect</span></p>
-                        <div class="token-list">
-                            ${tokensHtml}
+                if (result.success === false) {
+                    // This is not an error, just a limitation
+                    let content = `
+                        <div class="result-section">
+                            <h3>ℹ️ Feature Information</h3>
+                            <div class="result-text" style="color: var(--text-secondary);">
+                                ${result.message}
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+
+                    if (result.available_features && result.available_features.includes('error_detection')) {
+                        content += `
+                            <div class="result-section">
+                                <h3>💡 Available Features</h3>
+                                <div class="result-text">
+                                    ✅ Error Detection: Available for ${LANGUAGES[selectedLanguage].name}
+                                    <br>❌ Grammar Correction: Only available for English
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    showResults(content);
+                } else if (result.success === true) {
+                    let content = `
+                        <div class="result-section">
+                            <h3>✅ Grammar Correction</h3>
+                            <div class="result-text">${result.corrected_text}</div>
+                        </div>
+                    `;
+
+                    if (result.original_text !== result.corrected_text) {
+                        content += `
+                            <div class="result-section">
+                                <h3>📝 Original Text</h3>
+                                <div class="result-text">${result.original_text}</div>
+                            </div>
+                        `;
+                    }
+
+                    showResults(content);
+                } else {
+                    showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">${result.error}</div></div>`);
+                }
+            } catch (error) {
+                hideLoading();
+                showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">Failed to correct grammar: ${error.message}</div></div>`);
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        async function fullAnalysis() {
+            if (isProcessing) return; // Prevent multiple simultaneous requests
+            
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) {
+                alert('Please enter some text to analyze.');
+                return;
             }
 
-            document.getElementById('results').innerHTML = html;
+            isProcessing = true;
+            showLoading();
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        language_code: selectedLanguage
+                    })
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.detection && !result.detection.error) {
+                    let content = `
+                        <div class="result-section">
+                            <h3>📊 Full Analysis Results</h3>
+                            <div class="result-text">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <strong>Language:</strong> <span>${LANGUAGES[selectedLanguage].name}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <strong>Dataset:</strong> <span>${result.detection.dataset}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <strong>Average Confidence:</strong> <span>${result.detection.avg_confidence}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong>Tokens Analyzed:</strong> <span>${result.detection.tokens.length}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (result.correction && result.correction.success === true) {
+                        content += `
+                            <div class="result-section">
+                                <h3>✅ Corrected Text</h3>
+                                <div class="result-text">${result.correction.corrected_text}</div>
+                            </div>
+                        `;
+                    } else if (result.correction && result.correction.success === false) {
+                        content += `
+                            <div class="result-section">
+                                <h3>ℹ️ Correction Status</h3>
+                                <div class="result-text" style="color: var(--text-secondary);">
+                                    ${result.correction.message}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    showResults(content);
+                } else {
+                    showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">${result.detection.error || 'Analysis failed'}</div></div>`);
+                }
+            } catch (error) {
+                hideLoading();
+                showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">Failed to analyze text: ${error.message}</div></div>`);
+            } finally {
+                isProcessing = false;
+            }
         }
 
-        function showLoading() {
-            document.getElementById('results').innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Analyzing text...</p>
-                </div>
-            `;
-        }
+        function highlightErrors(text, errors) {
+            if (!errors || errors.length === 0) {
+                return text;
+            }
 
-        function showError(message) {
-            document.getElementById('results').innerHTML = `
-                <div class="error">
-                    <strong>Error:</strong> ${message}
-                </div>
-            `;
-        }
+            let highlightedText = text;
+            errors.forEach(error => {
+                const regex = new RegExp(`(${error})`, 'gi');
+                highlightedText = highlightedText.replace(regex, '<span class="error-highlight">$1</span>');
+            });
 
-        function clearResults() {
-            document.getElementById('results').innerHTML = '';
-            document.getElementById('textInput').value = '';
+            return highlightedText;
         }
-
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html> 
