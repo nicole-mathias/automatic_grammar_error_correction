@@ -15,5 +15,6 @@ jobs:
           lfs: true
       - name: Push to hub
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_TOKEN: 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
         run: git push https://NicoleMathias:$HF_TOKEN@huggingface.co/spaces/NicoleMathias/grammer-error-correction main
+        
