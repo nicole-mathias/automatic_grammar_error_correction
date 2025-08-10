@@ -1,3 +1,14 @@
+---
+title: Grammar Error Detection & Correction
+emoji: 🔍
+colorFrom: blue
+colorTo: purple
+sdk: docker
+sdk_version: "latest"
+app_file: app.py
+pinned: false
+---
+
 # Multilingual Grammar Error Detection & Correction
 
 A powerful web application for detecting and correcting grammar errors in multiple languages using state-of-the-art AI models.

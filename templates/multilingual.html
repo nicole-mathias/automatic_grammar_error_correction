@@ -46,12 +46,12 @@
 
         .header {
             text-align: center;
-            margin-bottom: 3rem;
-            padding: 2rem 0;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 0;
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
             color: var(--primary-color);
             margin-bottom: 0.5rem;
@@ -59,7 +59,7 @@
         }
 
         .header p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto;
@@ -396,7 +396,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 Grammar Error Detection & Correction</h1>
+            <h1>Grammar Error Detection & Correction</h1>
             <p>Advanced multilingual grammar analysis and correction using AI models</p>
         </div>
 
@@ -416,9 +416,9 @@
                         <!-- Language buttons will be populated by JavaScript -->
                     </div>
                     <div id="languageInfo" style="margin-top: 0.5rem; padding: 0.75rem; background: var(--secondary-color); border-radius: 8px; font-size: 0.9rem; color: var(--text-secondary);">
-                        <strong>ℹ️ Language Capabilities:</strong><br>
+                        <strong>Language Capabilities:</strong><br>
                         • <strong>English:</strong> Error detection + Grammar correction<br>
-                        • <strong>Other languages:</strong> Error detection only
+                        • <strong>Czech, German, Italian, Swedish:</strong> Error detection
                     </div>
                 </div>
 
@@ -427,22 +427,22 @@
                     <textarea id="inputText" class="form-control" rows="8" placeholder="Enter text to analyze for grammar errors..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <button id="detectBtn" class="btn">
+                <div class="form-group" style="display: flex; gap: 0.75rem; flex-wrap: nowrap; justify-content: space-between;">
+                    <button id="detectBtn" class="btn" style="flex: 1;">
                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
                         </svg>
                         Detect Errors
                     </button>
-                    <button id="correctBtn" class="btn btn-success">
+                    <button id="correctBtn" class="btn btn-success" style="flex: 1;">
                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
                         </svg>
                         Correct Grammar
                     </button>
-                    <button id="analyzeBtn" class="btn btn-warning">
+                    <button id="analyzeBtn" class="btn btn-warning" style="flex: 1;">
                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
@@ -531,13 +531,13 @@
             
             if (supportsCorrection) {
                 languageInfo.innerHTML = `
-                    <strong>✅ ${languageName} - Full Support:</strong><br>
+                    <strong>${languageName} - Full Support:</strong><br>
                     • Error detection + Grammar correction available
                 `;
             } else {
                 languageInfo.innerHTML = `
-                    <strong>⚠️ ${languageName} - Limited Support:</strong><br>
-                    • Error detection only (correction not available)
+                    <strong>${languageName} - Error Detection:</strong><br>
+                    • Error detection available
                 `;
             }
         }
@@ -556,13 +556,13 @@
             
             if (supportsCorrection) {
                 languageInfo.innerHTML = `
-                    <strong>✅ ${languageName} - Full Support:</strong><br>
+                    <strong>${languageName} - Full Support:</strong><br>
                     • Error detection + Grammar correction available
                 `;
             } else {
                 languageInfo.innerHTML = `
-                    <strong>⚠️ ${languageName} - Limited Support:</strong><br>
-                    • Error detection only (correction not available)
+                    <strong>${languageName} - Error Detection:</strong><br>
+                    • Error detection available
                 `;
             }
         }
@@ -629,51 +629,58 @@
                 hideLoading();
 
                 if (result.error) {
-                    showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">${result.error}</div></div>`);
+                    showResults(`<div class="result-section"><h3>Error</h3><div class="result-text">${result.error}</div></div>`);
                     return;
                 }
 
-                // Extract errors from tokens (tokens with tag "i" are incorrect)
-                const errors = result.tokens.filter(token => token.tag === "i" && token.token !== "[CLS]" && token.token !== "[SEP]");
-                const errorWords = errors.map(error => error.token);
-
                 let content = `
                     <div class="result-section">
-                        <h3>🔍 Error Detection Results</h3>
-                        <div class="result-text">${highlightErrors(text, errorWords)}</div>
+                        <h3>Error Detection Results</h3>
+                        <div class="result-text">${result.text}</div>
                     </div>
                 `;
 
-                if (errors.length > 0) {
+                if (result.errors_detected) {
                     content += `
                         <div class="result-section">
-                            <h3>📊 Error Statistics</h3>
-                            <div class="stats-grid">
-                                <div class="stat-card">
-                                    <div class="stat-value">${errors.length}</div>
-                                    <div class="stat-label">Total Errors</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${Math.round((errors.length / text.split(' ').length) * 100)}%</div>
-                                    <div class="stat-label">Error Rate</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${Math.round(result.avg_confidence * 100)}%</div>
-                                    <div class="stat-label">Avg Confidence</div>
-                                </div>
+                            <h3>Errors Detected</h3>
+                            <div class="result-text">
+                                <strong>Error Count:</strong> ${result.error_count}<br>
+                                <strong>Quality Score:</strong> ${result.quality_score}%
                             </div>
                         </div>
                     `;
                 } else {
                     content += `
                         <div class="result-section">
-                            <h3>✅ No Errors Detected</h3>
-                            <div class="result-text" style="color: var(--success-color);">
-                                Great! No grammar errors were detected in your text.
+                            <h3>No Errors Detected</h3>
+                            <div class="result-text">
+                                <strong>Quality Score:</strong> ${result.quality_score}%
                             </div>
                         </div>
                     `;
                 }
+
+                // Add quality score and statistics
+                content += `
+                    <div class="result-section">
+                        <h3>📊 Analysis Statistics</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${result.quality_score || 0}</div>
+                                <div class="stat-label">Quality Score</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${result.error_count || 0}</div>
+                                <div class="stat-label">Errors Found</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${result.fallback ? 'Basic' : 'Advanced'}</div>
+                                <div class="stat-label">Analysis Mode</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
 
                 // Add additional analysis info
                 content += `
@@ -684,17 +691,19 @@
                                 <strong>Language:</strong> <span>${LANGUAGES[selectedLanguage].name}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <strong>Dataset:</strong> <span>${result.dataset}</span>
+                                <strong>Text Length:</strong> <span>${text.length} characters</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <strong>Model Accuracy:</strong> <span>${Math.round(result.accuracy * 100)}%</span>
+                                <strong>Word Count:</strong> <span>${text.split(' ').length} words</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <strong>Tokens Analyzed:</strong> <span>${result.tokens.length}</span>
+                                <strong>Analysis Type:</strong> <span>${result.fallback ? 'Basic Analysis' : 'Advanced Grammar Check'}</span>
                             </div>
+                            ${result.confidence_scores ? `
                             <div style="display: flex; justify-content: space-between;">
-                                <strong>Average Confidence:</strong> <span>${Math.round(result.avg_confidence * 100)}%</span>
+                                <strong>Confidence Range:</strong> <span>${Math.min(...result.confidence_scores).toFixed(3)} - ${Math.max(...result.confidence_scores).toFixed(3)}</span>
                             </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -702,7 +711,7 @@
                 showResults(content);
             } catch (error) {
                 hideLoading();
-                showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">Failed to detect errors: ${error.message}</div></div>`);
+                showResults(`<div class="result-section"><h3>Error</h3><div class="result-text">Failed to detect errors: ${error.message}</div></div>`);
             } finally {
                 isProcessing = false;
             }
@@ -749,10 +758,10 @@
                     if (result.available_features && result.available_features.includes('error_detection')) {
                         content += `
                             <div class="result-section">
-                                <h3>💡 Available Features</h3>
+                                <h3>Available Features</h3>
                                 <div class="result-text">
-                                    ✅ Error Detection: Available for ${LANGUAGES[selectedLanguage].name}
-                                    <br>❌ Grammar Correction: Only available for English
+                                    Error Detection: Available for ${LANGUAGES[selectedLanguage].name}
+                                    <br>Grammar Correction: Only available for English
                                 </div>
                             </div>
                         `;
@@ -762,7 +771,7 @@
                 } else if (result.success === true) {
                     let content = `
                         <div class="result-section">
-                            <h3>✅ Grammar Correction</h3>
+                            <h3>Grammar Correction</h3>
                             <div class="result-text">${result.corrected_text}</div>
                         </div>
                     `;
@@ -770,7 +779,7 @@
                     if (result.original_text !== result.corrected_text) {
                         content += `
                             <div class="result-section">
-                                <h3>📝 Original Text</h3>
+                                <h3>Original Text</h3>
                                 <div class="result-text">${result.original_text}</div>
                             </div>
                         `;
@@ -778,11 +787,11 @@
 
                     showResults(content);
                 } else {
-                    showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">${result.error}</div></div>`);
+                    showResults(`<div class="result-section"><h3>Error</h3><div class="result-text">${result.error}</div></div>`);
                 }
             } catch (error) {
                 hideLoading();
-                showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">Failed to correct grammar: ${error.message}</div></div>`);
+                showResults(`<div class="result-section"><h3>Error</h3><div class="result-text">Failed to correct grammar: ${error.message}</div></div>`);
             } finally {
                 isProcessing = false;
             }
@@ -815,69 +824,90 @@
                 const result = await response.json();
                 hideLoading();
 
+                let content = `
+                    <div class="result-section">
+                        <h3>Full Analysis Results</h3>
+                        <div class="result-text">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>Language:</strong> <span>${LANGUAGES[selectedLanguage].name}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>Text Length:</strong> <span>${text.length} characters</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>Word Count:</strong> <span>${text.split(' ').length} words</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add detection results
                 if (result.detection && !result.detection.error) {
-                    let content = `
+                    content += `
                         <div class="result-section">
-                            <h3>📊 Full Analysis Results</h3>
+                            <h3>Error Detection</h3>
                             <div class="result-text">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <strong>Language:</strong> <span>${LANGUAGES[selectedLanguage].name}</span>
+                                    <strong>Errors Detected:</strong> <span>${result.detection.errors_detected ? 'Yes' : 'No'}</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <strong>Dataset:</strong> <span>${result.detection.dataset}</span>
+                                    <strong>Error Count:</strong> <span>${result.detection.error_count || 0}</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <strong>Average Confidence:</strong> <span>${result.detection.avg_confidence}</span>
+                                    <strong>Quality Score:</strong> <span>${result.detection.quality_score || 0}%</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between;">
-                                    <strong>Tokens Analyzed:</strong> <span>${result.detection.tokens.length}</span>
+                                    <strong>Analysis Mode:</strong> <span>${result.detection.fallback ? 'Basic' : 'Advanced'}</span>
                                 </div>
                             </div>
                         </div>
                     `;
-
-                    if (result.correction && result.correction.success === true) {
-                        content += `
-                            <div class="result-section">
-                                <h3>✅ Corrected Text</h3>
-                                <div class="result-text">${result.correction.corrected_text}</div>
+                } else if (result.detection && result.detection.error) {
+                    content += `
+                        <div class="result-section">
+                            <h3>Detection Error</h3>
+                            <div class="result-text" style="color: var(--error-color);">
+                                ${result.detection.error}
                             </div>
-                        `;
-                    } else if (result.correction && result.correction.success === false) {
-                        content += `
-                            <div class="result-section">
-                                <h3>ℹ️ Correction Status</h3>
-                                <div class="result-text" style="color: var(--text-secondary);">
-                                    ${result.correction.message}
+                        </div>
+                    `;
+                }
+
+                // Add correction results
+                if (result.correction && !result.correction.error) {
+                    content += `
+                        <div class="result-section">
+                            <h3>Grammar Correction</h3>
+                            <div class="result-text">
+                                <div style="margin-bottom: 1rem;">
+                                    <strong>Original:</strong><br>
+                                    <span style="color: var(--text-secondary);">${result.correction.original}</span>
+                                </div>
+                                <div>
+                                    <strong>Corrected:</strong><br>
+                                    <span style="color: var(--success-color);">${result.correction.corrected}</span>
                                 </div>
                             </div>
-                        `;
-                    }
-
-                    showResults(content);
-                } else {
-                    showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">${result.detection.error || 'Analysis failed'}</div></div>`);
+                        </div>
+                    `;
+                } else if (result.correction && result.correction.error) {
+                    content += `
+                        <div class="result-section">
+                            <h3>Correction Error</h3>
+                            <div class="result-text" style="color: var(--error-color);">
+                                ${result.correction.error}
+                            </div>
+                        </div>
+                    `;
                 }
+
+                showResults(content);
             } catch (error) {
                 hideLoading();
-                showResults(`<div class="result-section"><h3>❌ Error</h3><div class="result-text">Failed to analyze text: ${error.message}</div></div>`);
+                showResults(`<div class="result-section"><h3>Error</h3><div class="result-text">Failed to analyze text: ${error.message}</div></div>`);
             } finally {
                 isProcessing = false;
             }
-        }
-
-        function highlightErrors(text, errors) {
-            if (!errors || errors.length === 0) {
-                return text;
-            }
-
-            let highlightedText = text;
-            errors.forEach(error => {
-                const regex = new RegExp(`(${error})`, 'gi');
-                highlightedText = highlightedText.replace(regex, '<span class="error-highlight">$1</span>');
-            });
-
-            return highlightedText;
         }
     </script>
 </body>

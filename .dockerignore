@@ -50,4 +50,21 @@ Thumbs.db
 .env.local
 .env.development.local
 .env.test.local
-.env.production.local 
+.env.production.local
+
+# Temporary directories
+temp_*/
+hf_upload/
+hf_spaces_upload.zip
+grammer-error-correction/
+
+# Development files
+app_simple.py
+app_simple_fixed.py
+app_multilingual.py
+app_hf_spaces.py
+app_with_uploaded_models.py
+upload_*.py
+DEPLOYMENT_*.md
+MANUAL_*.md
+README_HF_SPACES.md 
